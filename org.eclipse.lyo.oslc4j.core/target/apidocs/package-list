@@ -1,0 +1,4 @@
+org.eclipse.lyo.oslc4j.core
+org.eclipse.lyo.oslc4j.core.annotation
+org.eclipse.lyo.oslc4j.core.exception
+org.eclipse.lyo.oslc4j.core.model

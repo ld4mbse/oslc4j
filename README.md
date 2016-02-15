@@ -29,6 +29,7 @@ Note: The JDK includes the Java Virtual Machine.
 
 EGit and Maven are already installed within the Eclipse for Java EE package.
 The next steps are partly based on the [OSLC tutorial instructions](http://open-services.net/resources/tutorials/integrating-products-with-oslc/running-the-examples/) 
+
 1.	In Eclipse, open the Git Repositories view. (Window → Show View → Other, search for Git repo by typing git in the search field, select the Git Repositories view among the search results, and click OK)
 2.	Click Clone a Git Repository. 
 3.	In the Clone Git Repository window, in the URI field paste the following: https://github.com/ld4mbse/oslc4j.git 
@@ -72,6 +73,7 @@ The console window in the middle of the Eclipse IDE should display a success mes
 ######Configuring OSLC4J projects in Eclipse
 
 If a project still shows an error, then change its JDK compliance to 1.8. Select the project, right-click -> Properties. Select Java Compiler and select 1.8 in the drop down menu.
+
 1.	In Eclipse, open the Preference view (Window->Preferences). 
 2.	Under Java, select the Compiler tab. 
 3.	Make sure that the Compiler compliance level is set to 1.8 as shown below

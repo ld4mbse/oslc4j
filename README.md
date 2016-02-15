@@ -1,7 +1,7 @@
 # oslc4j
-OSLC4J library of Eclipse Lyo for Java-based implementation of OSLC adapters
+##OSLC4J library of Eclipse Lyo for Java-based implementation of OSLC adapters
 
-Instructions to install OSLC4J 
+###Instructions to install OSLC4J 
 
 By Axel Reichwein, January 25, 2016
 1.	Installing the Java SE Development Kit (JDK) 8

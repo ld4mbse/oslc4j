@@ -45,6 +45,9 @@ The next steps are partly based on the [OSLC tutorial instructions](http://open-
 12.	Select all projects as in the figure below, and click Finish.
  
 #####Troubleshooting
+
+######Transport error
+
 Proxy settings in Eclipse (this section is only necessary if you faced a Transport error at step 3 while cloning the git repository)
 You may be using a proxy which Eclipse doesn’t know about. If that is the case, you will receive an error message as displayed below.
 

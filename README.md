@@ -35,7 +35,6 @@ The next steps are partly based on the [OSLC tutorial instructions](http://open-
 3.	In the Clone Git Repository window, in the URI field paste the following: https://github.com/ld4mbse/oslc4j.git 
  (Warning: if you are using a proxy and if you get a Transport Error, check the troubleshooting section below)
 4.	The Host and Repository fields will autofill. 
-5.	Use your Bitbucket credentials to enter the Username and Password fields
 6.	Click Next.
 7.	On the Branch Selection page, only select master and click Next.
 8.	Specify the location of your Git repository on your local machine through the Destination field. For the Destination, select a directory of your choice or accept the default proposed by Eclipse as shown below. Make sure that the Git repository directory is not identical with your Eclipse workspace (workspace folder for your Eclipse projects) as defined in Step #3!

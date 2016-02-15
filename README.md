@@ -47,6 +47,7 @@ The next steps are partly based on the [OSLC tutorial instructions](http://open-
 #####Troubleshooting
 Proxy settings in Eclipse (this section is only necessary if you faced a Transport error at step 3 while cloning the git repository)
 You may be using a proxy which Eclipse doesn’t know about. If that is the case, you will receive an error message as displayed below.
+
 1. Go to Window->Preferences->General->Network Connection. Set Active Provider to manual.
 2. Select the HTTPS schema entry, and click edit, and enter your proxy information.
 3. Redo Task #3 in this installation step 

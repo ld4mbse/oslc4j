@@ -9,6 +9,10 @@ Last updated by Axel Reichwein, February 15, 2016
 ####1. Installing the Java SE Development Kit (JDK) 8
 
 1.	You can check if you have already installed the Java SE Development Kit 8 on your Windows machine by typing **java -version** in the command prompt window. Launch the command prompt by clicking on Start->All Programs-> Accessories-> Command Prompt. If Java SE Development Kit 8 is installed on your computer, the displayed java version will start with 1.8 as displayed in the figure below. You can also have other Java versions on your computer. No need to uninstall previous versions. You may have a version of Java 1.8 different than 1.8.0_45 installed on your machine.
+<p align="center">
+  <img src="images/javaversion.PNG"/>
+</p>
+
 2.	If you do not the Java SE Development Kit 8 installed, go to  the following web page to install Java SE JDK 8 for different platforms: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html 
 3.	Accept the license agreement for Java SE Development Kit 
 4.	Choose the JDK for your platform (e.g. Windows )

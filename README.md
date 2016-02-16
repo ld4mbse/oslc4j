@@ -1,6 +1,10 @@
 # oslc4j
 ##OSLC4J library of Eclipse Lyo for Java-based implementation of OSLC adapters
 
+<p align="center">
+  <img src="images/projects.PNG"/>
+</p>
+
 ###Instructions to install OSLC4J 
 
 Last updated by Axel Reichwein, February 15, 2016

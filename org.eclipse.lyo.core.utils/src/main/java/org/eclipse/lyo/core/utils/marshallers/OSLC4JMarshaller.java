@@ -20,14 +20,14 @@ import java.io.OutputStream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFWriter;
+import org.apache.jena.util.FileUtils;
 
 import org.apache.wink.json4j.JSONObject;
 import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
 import org.eclipse.lyo.oslc4j.provider.json4j.JsonHelper;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
-import com.hp.hpl.jena.util.FileUtils;
 
 import static org.eclipse.lyo.core.utils.marshallers.MarshallerConstants.*;
 
@@ -47,7 +47,7 @@ public class OSLC4JMarshaller {
 					|| mediaType.isCompatible(MT_TURTLE)
 					|| mediaType.isCompatible(MT_N3)
 					|| mediaType.isCompatible(MT_OSLC_COMPACT)) {
-				Model model = JenaModelHelper.createJenaModel(resources);
+                Model model = JenaModelHelper.createJenaModel(resources);
 				if (model != null) {
 					String format = FileUtils.langXML;
 					// XML is the abbreviated format

@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eclipse.lyo.oslc4j.core</groupId>
-    <version>3.0.0-SNAPSHOT</version>
-    <name>OSLC4J Utilities</name>
+	<groupId>ld4mbse</groupId>
     <artifactId>oslc4j-utils</artifactId>
+    <version>4.0</version>
+    <name>OSLC4J Utilities</name>
     <description>Additional utilities such as the OSLC4J Marshaller and Unmarshaller</description>
 
     <scm>
@@ -41,14 +41,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.lyo.oslc4j.core</groupId>
+            <groupId>ld4mbse</groupId>
             <artifactId>oslc4j-json4j-provider</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.lyo.oslc4j.core</groupId>
+            <groupId>ld4mbse</groupId>
             <artifactId>oslc4j-jena-provider</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <version>4.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

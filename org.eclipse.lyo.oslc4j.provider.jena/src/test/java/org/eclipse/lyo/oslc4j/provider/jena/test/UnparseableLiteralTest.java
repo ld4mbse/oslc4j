@@ -31,11 +31,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.vocabulary.DCTerms;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.DCTerms;
 
 public class UnparseableLiteralTest {
 	@Before
@@ -86,11 +86,11 @@ public class UnparseableLiteralTest {
 
 		final Statement ageStatement = serialized.getProperty(m.createProperty(TestResource.TEST_NAMESPACE + "age"));
 		assertEquals("Unexpected value for ex:age", "", ageStatement.getString());
-		assertNull(ageStatement.getLiteral().getDatatypeURI());
-
+        assertEquals("http://www.w3.org/2001/XMLSchema#string", ageStatement.getLiteral().getDatatypeURI());
+        
 		final Statement modifiedStatement = serialized.getProperty(DCTerms.modified);
 		assertEquals("Unexpected value for dcterms:modified", "today", modifiedStatement.getString());
-		assertNull(modifiedStatement.getLiteral().getDatatypeURI());
+        assertEquals("http://www.w3.org/2001/XMLSchema#string", modifiedStatement.getLiteral().getDatatypeURI());
 	}
 
 	private void verifyUnparseable(

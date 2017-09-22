@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.eclipse.lyo.oslc4j.core.model.Service;
 import org.eclipse.lyo.oslc4j.core.model.ServiceProvider;
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 import org.junit.Test;
 
 import org.apache.jena.rdf.model.Model;

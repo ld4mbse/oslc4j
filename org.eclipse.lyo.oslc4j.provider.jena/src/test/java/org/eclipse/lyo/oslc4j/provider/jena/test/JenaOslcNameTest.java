@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
 import junit.framework.Assert;
 
 import org.eclipse.lyo.oslc4j.core.model.AbstractResource;
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 import org.eclipse.lyo.oslc4j.provider.jena.test.resources.EmptyNameResource;
 import org.eclipse.lyo.oslc4j.provider.jena.test.resources.TestResource;
 import org.eclipse.lyo.oslc4j.provider.jena.test.resources.UnnamedResource;

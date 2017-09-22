@@ -20,6 +20,9 @@ package org.eclipse.lyo.oslc4j.provider.json4j;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.lyo.oslc4j.provider.jsonld4j.OslcRdfJsonLDProvider;
+import org.eclipse.lyo.oslc4j.provider.jsonld4j.OslcSimpleRdfJsonLDArrayProvider;
+import org.eclipse.lyo.oslc4j.provider.jsonld4j.OslcSimpleRdfJsonLDCollectionProvider;
 
 public final class Json4JSimpleProvidersRegistry
 {
@@ -31,6 +34,9 @@ public final class Json4JSimpleProvidersRegistry
 		PROVIDERS.add(OslcSimpleRdfJsonArrayProvider.class);
 		PROVIDERS.add(OslcSimpleRdfJsonCollectionProvider.class);
 		PROVIDERS.add(OslcRdfJsonProvider.class);
+		PROVIDERS.add(OslcSimpleRdfJsonLDArrayProvider.class);
+		PROVIDERS.add(OslcSimpleRdfJsonLDCollectionProvider.class);
+		PROVIDERS.add(OslcRdfJsonLDProvider.class);
 	}
 
 	private Json4JSimpleProvidersRegistry()

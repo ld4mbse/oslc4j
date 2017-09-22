@@ -18,7 +18,7 @@
  *	   Samuel Padgett		- oslc:totalCount should be a typed literal
  *	   Romain Barth			- unparseable literal
  *******************************************************************************/
-package org.eclipse.lyo.oslc4j.provider.jena;
+package org.eclipse.lyo.oslc4j.core;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -65,12 +65,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.lyo.oslc4j.core.NestedWildcardProperties;
-import org.eclipse.lyo.oslc4j.core.OSLC4JConstants;
-import org.eclipse.lyo.oslc4j.core.OSLC4JUtils;
-import org.eclipse.lyo.oslc4j.core.OslcGlobalNamespaceProvider;
-import org.eclipse.lyo.oslc4j.core.SingletonWildcardProperties;
-import org.eclipse.lyo.oslc4j.core.UnparseableLiteral;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcName;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcNamespaceDefinition;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcPropertyDefinition;
@@ -120,7 +114,6 @@ import org.apache.jena.rdf.model.SimpleSelector;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.util.iterator.ExtendedIterator;
-import org.apache.jena.util.iterator.Map1;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 
@@ -145,6 +138,23 @@ public final class JenaModelHelper
 
 	private static final String GENERATED_PREFIX_START = "j.";
 
+	/**
+	 * System property {@value} : When "true", always abbreviate RDF/XML, even
+	 * when asked for application/rdf+xml. Otherwise, abbreviated RDF/XML is
+	 * only returned when application/xml is requested. Does not affect
+	 * text/turtle responses.
+	 * 
+	 * @see RdfXmlAbbreviatedWriter
+	 */
+	public static final String OSLC4J_ALWAYS_XML_ABBREV		  = "org.eclipse.lyo.oslc4j.alwaysXMLAbbrev";
+	
+	/**
+	 * System property {@value} : When "true" (default), fail on when reading a
+	 * property value that is not a legal instance of a datatype. When "false",
+	 * skip over invalid values in extended properties.
+	 */
+	public static final String OSLC4J_STRICT_DATATYPES		 = "org.eclipse.lyo.oslc4j.strictDatatypes";
+
 	private static final Logger logger = Logger.getLogger(JenaModelHelper.class.getName());
 
 	private JenaModelHelper()
@@ -166,10 +176,10 @@ public final class JenaModelHelper
 							   null);
 	}
 
-	static Model createJenaModel(final String			   descriptionAbout,
-								 final String			   responseInfoAbout,
-								 final ResponseInfo<?>		   responseInfo,
-								 final Object[]			   objects,
+	public static Model createJenaModel(final String	descriptionAbout,
+								 final String			responseInfoAbout,
+								 final ResponseInfo<?>	responseInfo,
+								 final Object[]			objects,
 								 final Map<String, Object> properties)
 		   throws DatatypeConfigurationException,
 				  IllegalAccessException,
@@ -1094,7 +1104,7 @@ public final class JenaModelHelper
 				String rawValue = literal.getString();
 				String datatype = literal.getDatatypeURI();
 
-				if ("false".equals(System.getProperty(AbstractOslcRdfXmlProvider.OSLC4J_STRICT_DATATYPES)))
+				if ("false".equals(System.getProperty(OSLC4J_STRICT_DATATYPES)))
 			   	{
 					if (logger.isLoggable(Level.WARNING))
 					{

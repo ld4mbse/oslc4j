@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 import org.eclipse.lyo.oslc4j.provider.jena.test.resources.TestResource;
 import org.junit.Test;
 

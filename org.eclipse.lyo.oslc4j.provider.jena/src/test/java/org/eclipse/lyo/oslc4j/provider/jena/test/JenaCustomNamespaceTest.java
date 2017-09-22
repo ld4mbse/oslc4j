@@ -35,7 +35,7 @@ import junit.framework.Assert;
 import org.eclipse.lyo.oslc4j.core.OslcGlobalNamespaceProvider;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcSchema;
 import org.eclipse.lyo.oslc4j.core.test.customnamespace.CustomNamespaceResource;
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 import org.junit.Test;
 
 import org.apache.jena.rdf.model.Model;

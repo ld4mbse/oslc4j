@@ -32,7 +32,11 @@ public interface OslcMediaType {
 	public final static String APPLICATION_JSON = MediaType.APPLICATION_JSON;
 	public final static MediaType APPLICATION_JSON_TYPE = MediaType.APPLICATION_JSON_TYPE;
 
-	public final static String APPLICATION_XML = MediaType.APPLICATION_XML;
+    public final static String JSON_LD = "ld+json";
+	public final static String APPLICATION_JSON_LD = APPLICATION + "/" + JSON_LD;
+	public final static MediaType APPLICATION_JSON_LD_TYPE = new MediaType(APPLICATION, JSON_LD);
+
+    public final static String APPLICATION_XML = MediaType.APPLICATION_XML;
 	public final static MediaType APPLICATION_XML_TYPE = MediaType.APPLICATION_XML_TYPE;
 	
 	public final static String TEXT_XML = MediaType.TEXT_XML;

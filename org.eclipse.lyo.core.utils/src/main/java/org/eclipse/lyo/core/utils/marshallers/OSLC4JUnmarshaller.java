@@ -33,7 +33,7 @@ import org.apache.jena.rdf.model.RDFReader;
 import org.apache.jena.util.FileUtils;
 
 import org.eclipse.lyo.oslc4j.core.exception.OslcCoreApplicationException;
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 
 public class OSLC4JUnmarshaller {
 	

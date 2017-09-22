@@ -25,7 +25,7 @@ import org.apache.jena.rdf.model.RDFWriter;
 import org.apache.jena.util.FileUtils;
 
 import org.apache.wink.json4j.JSONObject;
-import org.eclipse.lyo.oslc4j.provider.jena.JenaModelHelper;
+import org.eclipse.lyo.oslc4j.core.JenaModelHelper;
 import org.eclipse.lyo.oslc4j.provider.json4j.JsonHelper;
 
 

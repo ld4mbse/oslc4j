@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.eclipse.lyo.oslc4j.provider.jena.test.JenaOslcNameTest
--------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 sec

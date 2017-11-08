@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 IBM Corporation.
+ * Copyright (c) 2012, 2013 IBM Corporation.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -15,6 +15,7 @@
  *	   Alberto Giammaria	- initial API and implementation
  *	   Chris Peters			- initial API and implementation
  *	   Gianluca Bernardini	- initial API and implementation
+ *	   Ricardo J. Herrera	- jsonld support
  *******************************************************************************/
 package org.eclipse.lyo.oslc4j.provider.jena;
 
@@ -36,69 +37,46 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.Providers;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 
 import org.eclipse.lyo.oslc4j.core.OSLC4JConstants;
 import org.eclipse.lyo.oslc4j.core.OSLC4JUtils;
-import org.eclipse.lyo.oslc4j.core.annotation.OslcNotQueryResult;
 import org.eclipse.lyo.oslc4j.core.annotation.OslcResourceShape;
 import org.eclipse.lyo.oslc4j.core.exception.MessageExtractor;
 import org.eclipse.lyo.oslc4j.core.model.Error;
-import org.eclipse.lyo.oslc4j.core.model.OslcMediaType;
 import org.eclipse.lyo.oslc4j.core.model.ResponseInfo;
 import org.eclipse.lyo.oslc4j.core.model.ResponseInfoArray;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFReader;
-import org.apache.jena.rdf.model.RDFWriter;
-import org.apache.jena.util.FileUtils;
-
-public abstract class AbstractOslcRdfXmlProvider
+public abstract class AbstractOslcRdfJsonLDProvider
 {
-	private static final Logger logger = Logger.getLogger(AbstractOslcRdfXmlProvider.class.getName());
- 
-	/**
-	 * System property {@value} : When "true", always abbreviate RDF/XML, even
-	 * when asked for application/rdf+xml. Otherwise, abbreviated RDF/XML is
-	 * only returned when application/xml is requested. Does not affect
-	 * text/turtle responses.
-	 * 
-	 * @see RdfXmlAbbreviatedWriter
-	 */
-	public static final String OSLC4J_ALWAYS_XML_ABBREV		  = "org.eclipse.lyo.oslc4j.alwaysXMLAbbrev";
-	
-	/**
-	 * System property {@value} : When "true" (default), fail on when reading a
-	 * property value that is not a legal instance of a datatype. When "false",
-	 * skip over invalid values in extended properties.
-	 */
-	public static final String OSLC4J_STRICT_DATATYPES		 = "org.eclipse.lyo.oslc4j.strictDatatypes";
+	private static final Logger logger = Logger.getLogger(AbstractOslcRdfJsonLDProvider.class.getName());
 
 	private static final Annotation[] ANNOTATIONS_EMPTY_ARRAY = new Annotation[0];
 	private static final Class<Error> CLASS_OSLC_ERROR		  = Error.class;
-	private static final ErrorHandler ERROR_HANDLER			  = new ErrorHandler();
 
 	private @Context HttpHeaders		  httpHeaders;		  // Available only on the server
 	protected @Context HttpServletRequest httpServletRequest; // Available only on the server
 	private @Context Providers			  providers;		  // Available on both client and server
 
-	protected AbstractOslcRdfXmlProvider()
+	protected AbstractOslcRdfJsonLDProvider()
 	{
 		super();
 	}
 
-	protected static boolean isWriteable(final Class<?>		 type,
-										 final Annotation[]	 annotations,
-										 final MediaType	 actualMediaType,
-										 final MediaType ... requiredMediaTypes)
+	protected static boolean isWriteable(final Class<?>		type,
+										 final Annotation[] annotations,
+										 final MediaType	requiredMediaType,
+										 final MediaType	actualMediaType)
 	{
-		if (type.getAnnotation(OslcResourceShape.class) != null ||
-			type.getAnnotation(OslcNotQueryResult.class) != null)
+		if (type.getAnnotation(OslcResourceShape.class) != null)
 		{
 			// When handling "recursive" writing of an OSLC Error object, we get a zero-length array of annotations
 			if ((annotations != null) &&
 				((annotations.length > 0) ||
-				 (CLASS_OSLC_ERROR != type)))
+				 (Error.class != type)))
 			{
 				for (final Annotation annotation : annotations)
 				{
@@ -108,16 +86,11 @@ public abstract class AbstractOslcRdfXmlProvider
 
 						for (final String value : producesAnnotation.value())
 						{
-							for (final MediaType requiredMediaType : requiredMediaTypes)
+							if (requiredMediaType.isCompatible(MediaType.valueOf(value)))
 							{
-								if (requiredMediaType.isCompatible(MediaType.valueOf(value)))
-								{
-									return true;
-								}
+								return true;
 							}
 						}
-
-						return false;
 					}
 				}
 
@@ -125,67 +98,15 @@ public abstract class AbstractOslcRdfXmlProvider
 			}
 
 			// We do not have annotations when running from the non-web client.
-			if (isCompatible(actualMediaType, requiredMediaTypes)) 
-			{
-				return true;
-			}
+			return requiredMediaType.isCompatible(actualMediaType);
 		}
 
 		return false;
 	}
 
-	protected void writeTo(final Object[]						objects,
-						   final MediaType						baseMediaType,
-						   final MultivaluedMap<String, Object> map,
-						   final OutputStream					outputStream,
-						   final Map<String, Object>			properties,
-						   final String							descriptionURI,
-						   final String							responseInfoURI,
-						   final ResponseInfo<?>				responseInfo)
-				throws WebApplicationException
-	{
-		final String serializationLanguage = getSerializationLanguage(baseMediaType);
- 
-		try
-		{
-			final Model model = JenaModelHelper.createJenaModel(descriptionURI,
-																responseInfoURI,
-																responseInfo,
-																objects,
-																properties);
-			RDFWriter writer = null;
-			if	(serializationLanguage.equals(FileUtils.langXMLAbbrev))
-			{
-				writer = new RdfXmlAbbreviatedWriter();
-			}
-			else
-			{
-				writer = model.getWriter(serializationLanguage);
-			}
-			writer.setProperty("showXmlDeclaration",
-							   "false");
-			writer.setErrorHandler(ERROR_HANDLER);	  
-			
-			if (! serializationLanguage.equals(FileUtils.langTurtle)) 
-			{
-				String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-				outputStream.write(xmlDeclaration.getBytes());
-			}
-			
-			writer.write(model,
-						 outputStream,
-						 null);
-		}
-		catch (final Exception exception)
-		{
-			logger.log(Level.FINE, MessageExtractor.getMessage("ErrorSerializingResource"), exception);
-			throw new WebApplicationException(exception);
-		}
-	}
-
 	protected void writeTo(final boolean						queryResult,
 						   final Object[]						objects,
-						   final MediaType						baseMediaType,
+						   final MediaType						errorMediaType,
 						   final MultivaluedMap<String, Object> map,
 						   final OutputStream					outputStream)
 			  throws WebApplicationException
@@ -200,7 +121,7 @@ public abstract class AbstractOslcRdfXmlProvider
 		
 		String descriptionURI  = null;
 		String responseInfoURI = null;
-		
+
 		if (queryResult && ! isClientSide)
 		{
 
@@ -220,50 +141,27 @@ public abstract class AbstractOslcRdfXmlProvider
 
 		}
 
-		final String serializationLanguage = getSerializationLanguage(baseMediaType);
-
 		@SuppressWarnings("unchecked")
 		final Map<String, Object> properties = isClientSide ?
 			null :
 			(Map<String, Object>)httpServletRequest.getAttribute(OSLC4JConstants.OSLC4J_SELECTED_PROPERTIES);
 		final String nextPageURI = isClientSide ?
-			null :
-			(String)httpServletRequest.getAttribute(OSLC4JConstants.OSLC4J_NEXT_PAGE);
+				null :
+				(String)httpServletRequest.getAttribute(OSLC4JConstants.OSLC4J_NEXT_PAGE);
 		final Integer totalCount = isClientSide ?
-			null :
-			(Integer)httpServletRequest.getAttribute(OSLC4JConstants.OSLC4J_TOTAL_COUNT);
+				null :
+				(Integer)httpServletRequest.getAttribute(OSLC4JConstants.OSLC4J_TOTAL_COUNT);
 		
 		ResponseInfo<?> responseInfo = new ResponseInfoArray<Object>(null, properties, totalCount, nextPageURI);
-		
+
 		try
 		{
-			final Model model = JenaModelHelper.createJenaModel(descriptionURI,
+			Model model = JenaModelHelper.createJenaModel(descriptionURI,
 																responseInfoURI,
 																responseInfo,
 																objects,
 																properties);
-			RDFWriter writer = null;
-			if	(serializationLanguage.equals(FileUtils.langXMLAbbrev))
-			{
-				writer = new RdfXmlAbbreviatedWriter();
-			}
-			else
-			{
-				writer = model.getWriter(serializationLanguage);
-			}
-			writer.setProperty("showXmlDeclaration",
-					"false");
-			writer.setErrorHandler(ERROR_HANDLER);	  
-			
-			if (! serializationLanguage.equals(FileUtils.langTurtle)) 
-			{
-				String xmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-				outputStream.write(xmlDeclaration.getBytes());
-			}
-
-			writer.write(model,
-						 outputStream,
-						 null);
+            model.write(outputStream, errorMediaType.toString());
 		}
 		catch (final Exception exception)
 		{
@@ -272,100 +170,66 @@ public abstract class AbstractOslcRdfXmlProvider
 		}
 	}
 
-	private String getSerializationLanguage(final MediaType baseMediaType) {
-		// Determine whether to serialize in xml or abreviated xml based upon mediatype.
-		// application/rdf+xml yields xml
-		// applicaton/xml yields abbreviated xml
-		if (OslcMediaType.TEXT_TURTLE_TYPE.equals(baseMediaType))
+	protected void writeTo(final Object[]						objects,
+						   final MediaType						errorMediaType,
+						   final MultivaluedMap<String, Object> map,
+						   final OutputStream					outputStream,
+						   final Map<String, Object>			properties,
+						   final String							descriptionURI,
+						   final String							responseInfoURI,
+						   final ResponseInfo<?>					responseInfo)
+				throws WebApplicationException
+	{
+		try
 		{
-			return FileUtils.langTurtle;
+			Model model = JenaModelHelper.createJenaModel(descriptionURI,
+																responseInfoURI,
+																responseInfo,
+																objects,
+																properties);
+            RDFDataMgr.write(outputStream, model, Lang.JSONLD);
 		}
-
-		if (OslcMediaType.APPLICATION_RDF_XML_TYPE.isCompatible(baseMediaType) &&
-			!"true".equals(System.getProperty(OSLC4J_ALWAYS_XML_ABBREV)))
+		catch (final Exception exception)
 		{
-			return FileUtils.langXML;
+			logger.log(Level.FINE, MessageExtractor.getMessage("ErrorSerializingResource"), exception);
+			throw new WebApplicationException(exception);
 		}
-		
-		return FileUtils.langXMLAbbrev;
 	}
 
-	protected static boolean isReadable(final Class<?>		type,
-										final MediaType		actualMediaType,
-										final MediaType ... requiredMediaTypes)
+	 protected static boolean isReadable(final Class<?>	 type,
+										final MediaType requiredMediaType,
+										final MediaType actualMediaType)
 	{
-		if (type.getAnnotation(OslcResourceShape.class) != null)
-		{
-			if (isCompatible(actualMediaType, requiredMediaTypes))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	protected static boolean isCompatible(final MediaType actualMediaType,
-			final MediaType... requiredMediaTypes) 
-	{
-			for (final MediaType requiredMediaType : requiredMediaTypes)
-			{
-				if (requiredMediaType.isCompatible(actualMediaType))
-				{
-					return true;
-				}
-			}
-
-		return false;
+		return (type.getAnnotation(OslcResourceShape.class) != null) &&
+			   (requiredMediaType.isCompatible(actualMediaType));
 	}
 
 	protected Object[] readFrom(final Class<?>						 type,
-								final MediaType						 mediaType,
+								final MediaType						 errorMediaType,
 								final MultivaluedMap<String, String> map,
 								final InputStream					 inputStream)
-			  throws WebApplicationException
+		   throws WebApplicationException
 	{
-		final Model model = ModelFactory.createDefaultModel();
-
-		RDFReader reader = null;
-		
-		if (mediaType != null && mediaType.isCompatible(OslcMediaType.TEXT_TURTLE_TYPE))
-		{
-			reader=model.getReader(FileUtils.langTurtle);
-		} else {
-			reader = model.getReader(); // Default reader handles both xml and abbreviated xml
-		}
-		reader.setErrorHandler(ERROR_HANDLER);
-
+        final Model model = ModelFactory.createDefaultModel();
 		try
 		{
-			// Pass the empty string as the base URI. This allows Jena to
-			// resolve relative URIs commonly used to in reified statements
-			// for OSLC link labels. See this section of the CM specification
-			// for an example:
-			// http://open-services.net/bin/view/Main/CmSpecificationV2?sortcol=table;up=#Labels_for_Relationships
-
-			reader.read(model,
-						inputStream,
-						"");
-
-			return JenaModelHelper.fromJenaModel(model,
-												 type);
+            RDFDataMgr.read(model, inputStream, "", Lang.JSONLD);
+			return JenaModelHelper.fromJenaModel(model, type);
 		}
 		catch (final Exception exception)
 		{
 			throw new WebApplicationException(exception,
 											  buildBadRequestResponse(exception,
-																	  mediaType,
+																	  errorMediaType,
 																	  map));
 		}
 	}
 
 	protected Response buildBadRequestResponse(final Exception				   exception,
-											   final MediaType				   initialErrorMediaType,
+											   final MediaType				   errorMediaType,
 											   final MultivaluedMap<String, ?> map)
 	{
-		final MediaType determinedErrorMediaType = determineErrorMediaType(initialErrorMediaType,
+		final MediaType determinedErrorMediaType = determineErrorMediaType(errorMediaType,
 																		   map);
 
 		final Error error = new Error();
@@ -467,7 +331,6 @@ public abstract class AbstractOslcRdfXmlProvider
 											   ANNOTATIONS_EMPTY_ARRAY,
 											   mediaType) != null);
 	}
-
 	protected static boolean isOslcQuery(final String parmString)
 	{
 		boolean containsOslcParm = false;
